@@ -15,7 +15,7 @@ catalog:
       description: "GIT source"
       label: "GIT source"
       required: true
-      default: "https://github.com/banago/simple-php-website.git"
+      default: "https://github.com/bernardmaltais/demosite.git"
       type: "string"
     - variable: HTTP_SITE_NAME
       description: "Site Name"
