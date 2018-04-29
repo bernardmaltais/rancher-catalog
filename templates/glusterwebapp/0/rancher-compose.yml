@@ -1,4 +1,28 @@
 version: '2'
+catalog:
+  name: "GL Stack"
+  version: "v0.1"
+  description: "Gluster based NGINX and PHP"
+  minimum_rancher_version: v0.51.0
+  questions:
+    - variable: GLUSTER_PEER
+      description: "GLUSTER_PEER"
+      label: "GLUSTER_PEER (no HTTP)"
+      required: true
+      default: "gluster"
+      type: "string"
+    - variable: HTTP_GIT_SRC
+      description: "GIT source"
+      label: "GIT source"
+      required: true
+      default: "https://github.com/banago/simple-php-website.git"
+      type: "string"
+    - variable: HTTP_SITE_NAME
+      description: "Site Name"
+      label: "Site Name"
+      required: true
+      default: "testphp"
+      type: "string"
 services:
   gluster:
     scale: 2
