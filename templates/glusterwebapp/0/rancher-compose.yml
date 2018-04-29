@@ -5,12 +5,6 @@ catalog:
   description: "Gluster based NGINX and PHP"
   minimum_rancher_version: v0.51.0
   questions:
-    - variable: GLUSTER_PEER
-      description: "GLUSTER_PEER"
-      label: "GLUSTER_PEER (no HTTP)"
-      required: true
-      default: "gluster"
-      type: "string"
     - variable: HTTP_GIT_SRC
       description: "GIT source"
       label: "GIT source"

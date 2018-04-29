@@ -25,7 +25,7 @@ services:
     privileged: true
     image: bmaltais/rancher-glusterfs-client:latest
     environment:
-      GLUSTER_PEER: gluster
+      SERVICE_NAME: gluster
       GIT_SRC: https://github.com/banago/simple-php-website.git
       HTTP_SITE_NAME: testphp
     stdin_open: true
