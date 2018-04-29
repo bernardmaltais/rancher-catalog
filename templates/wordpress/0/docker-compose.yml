@@ -1,189 +1,34 @@
 version: '2'
-volumes:
-  ${CLIENT}_wp_db:
-    external: true
-    driver: local
-  ${CLIENT}_letsencrypt:
-    external: true
-    driver: local
-  ${CLIENT}_wp_data:
-    external: true
-    driver: local
-  ${CLIENT}_pydio:
-    external: true
-    driver: local
 services:
-  phpmyadmin:
-    image: gabrielcossette/phpmyadmin-docker
-    links:
-    - mysql:db
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: phpmyadmin_prod
-  pydio:
-    image: gabrielcossette/pydio-docker
+  gluster:
+    privileged: true
+    image: bmaltais/rancher-glusterfs-server:latest
     environment:
-      PGID: 82
-      PUID: 82
-      PYDIO_PASSWORD_FILE: /run/secrets/${CLIENT}_PW
-      PYDIO_DB_HOST: mysql
-      PYDIO_DB_NAME: pydio
-      PYDIO_DB_USER: root
-      PYDIO_DB_PASSWORD_FILE: /run/secrets/DB_Root
+      ROOT_PASSWORD: testing
+    stdin_open: true
     volumes:
-    - ${CLIENT}_pydio:/data
-    - ${CLIENT}_wp_data:/wp
-    secrets:
-    - ${CLIENT}_PW
-    - DB_Root
+    - /gluster_volume:/gluster_volume
+    tty: true
     labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
       io.rancher.container.pull_image: always
-      Upgrade: pydio_prod
-  nginx:
-    image: gabrielcossette/nginx-ee-docker
-    environment:
-      POST_MAX_SIZE: 2G
-      SITE: ${WP_URL}
-      WP_CONTAINER_NAME: wordpress
-      CACHE: redis
-    volumes:
-    - ${CLIENT}_wp_data:/var/www/html
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: nginx_prod
-  wordpress:
-    image: gabrielcossette/wordpress-docker
-    environment:
-      USER_FILE: /run/secrets/WP_User
-      PASS_FILE: /run/secrets/WP_Pass
-      SITE: https://${WP_URL}
-      EMAIL: ${WP_EMAIL}
-      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/DB_Root
-      WORDPRESS_DB_NAME: wordpress
-      EMAIL_FROM: ${EMAIL_FROM}
-      EMAIL_SERVER: ${EMAIL_SERVER}
-      EMAIL_PORT: ${EMAIL_PORT}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PW_FILE: /run/secrets/${CLIENT}_Email_PW
-    volumes:
-    - ${CLIENT}_wp_data:/var/www/html
-    secrets:
-    - DB_Root
-    - WP_User
-    - WP_Pass
-    - ${CLIENT}_Email_PW
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: wordpress_prod
-  LB:
-    image: rancher/lb-service-haproxy:v0.7.15
+  wwwapp-lb:
+    image: rancher/lb-service-haproxy:v0.9.1
     ports:
     - 80:80/tcp
     - 443:443/tcp
-    - 2222:2222/tcp
     labels:
-      io.rancher.container.agent.role: environmentAdmin
+      io.rancher.container.agent.role: environmentAdmin,agent
+      io.rancher.container.agent_service.drain_provider: 'true'
       io.rancher.container.create_agent: 'true'
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-  mysql:
-    image: gabrielcossette/mariadb-docker
+      io.rancher.scheduler.global: 'true'
+  wwwapp:
+    privileged: true
+    image: bmaltais/rancher-glusterfs-client:latest
     environment:
-      MYSQL_DATABASE: pydio
-      MYSQL_USER: admin
-      MYSQL_PASSWORD_FILE: /run/secrets/${CLIENT}_PW
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/DB_Root
-    volumes:
-    - ${CLIENT}_wp_db:/var/lib/mysql
-    secrets:
-    - ${CLIENT}_PW
-    - DB_Root
+      GLUSTER_PEER: gluster
+      GIT_SRC: https://github.com/banago/simple-php-website.git
+      HTTP_SITE_NAME: testphp
+    stdin_open: true
+    tty: true
     labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
       io.rancher.container.pull_image: always
-      Upgrade: mysql_prod
-  mysql-backup:
-    image: gabrielcossette/backup-all-mysql
-    environment:
-      BACKUP_INTERVAL: 86400
-      BACKUP_FIRSTDELAY: 60
-    links:
-    - mysql
-    restart: always
-    volumes:
-    - /root/backup:/var/dbdumps
-    - /etc/localtime:/etc/localtime
-    - /etc/timezone:/etc/timezone
-    secrets:
-    - DB_Root
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: mysql-backup_prod
-  sftp:
-    image: gabrielcossette/sftp-docker
-    environment:
-      USER: admin
-      PASS_FILE: /run/secrets/${CLIENT}_PW
-      UID: 82
-    volumes:
-    - ${CLIENT}_wp_data:/home/admin/wp
-    secrets:
-    - ${CLIENT}_PW
-    command:
-    - admin::82
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: sftp_prod
-  letsencrypt:
-    image: janeczku/rancher-letsencrypt:v0.5.0
-    environment:
-      API_VERSION: Production
-      AWS_ACCESS_KEY: ''
-      AWS_SECRET_KEY: ''
-      AZURE_CLIENT_ID: ''
-      AZURE_CLIENT_SECRET: ''
-      AZURE_RESOURCE_GROUP: ''
-      AZURE_SUBSCRIPTION_ID: ''
-      AZURE_TENANT_ID: ''
-      CERT_NAME: ${CLIENT}
-      CLOUDFLARE_EMAIL: ''
-      CLOUDFLARE_KEY: ''
-      DNSIMPLE_EMAIL: ''
-      DNSIMPLE_KEY: ''
-      DNS_RESOLVERS: 9.9.9.9:53
-      DOMAINS: ${WP_URL}, db.${DOMAIN}, files.${DOMAIN}
-      DO_ACCESS_TOKEN: ''
-      DYN_CUSTOMER_NAME: ''
-      DYN_PASSWORD: ''
-      DYN_USER_NAME: ''
-      EMAIL: ${WP_EMAIL}
-      EULA: 'Yes'
-      GANDI_API_KEY: ''
-      OVH_APPLICATION_KEY: ''
-      OVH_APPLICATION_SECRET: ''
-      OVH_CONSUMER_KEY: ''
-      PROVIDER: HTTP
-      PUBLIC_KEY_TYPE: RSA-2048
-      RENEWAL_PERIOD_DAYS: '20'
-      RENEWAL_TIME: '12'
-      VULTR_API_KEY: ''
-    volumes:
-    - /var/lib/rancher:/var/lib/rancher
-    - ${CLIENT}_letsencrypt:/etc/letsencrypt
-    labels:
-      io.rancher.container.agent.role: environment
-      io.rancher.container.create_agent: 'true'
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-  redis:
-    image: gabrielcossette/redis-docker
-    labels:
-      io.rancher.scheduler.affinity:host_label: Name=${CLIENT}
-      io.rancher.container.pull_image: always
-      Upgrade: redis_prod

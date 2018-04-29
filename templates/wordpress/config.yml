@@ -1,8 +1,8 @@
-name: WP Stack
+name: GL Stack
 description: |
-  WordPress Stack
+  Gluster based NGINX and PHP
 version: 0.1
 category: CMS
-maintainer: Gabriel Cossette
+maintainer: Bernard Maltais
 license: Various
 projectURL: https://weblibre.ca
