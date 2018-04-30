@@ -1,0 +1,8 @@
+name: GL Stack
+description: |
+  Gluster based NGINX and PHP
+version: 0.1
+category: CMS
+maintainer: Bernard Maltais
+license: Various
+projectURL: https://weblibre.ca

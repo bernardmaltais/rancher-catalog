@@ -1,0 +1,12 @@
+version: '2'
+catalog:
+  name: "GL Stack"
+  version: "v0.1"
+  description: "Gluster based NGINX and PHP"
+  minimum_rancher_version: v0.51.0
+  questions:
+services:
+  glusterfs-server:
+  scale: 3
+  metadata:
+    volume_name: "ranchervol"
