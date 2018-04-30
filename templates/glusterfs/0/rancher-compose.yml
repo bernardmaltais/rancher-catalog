@@ -5,6 +5,12 @@ catalog:
   description: "Gluster fs"
   minimum_rancher_version: v0.51.0
   questions:
+      variable: HTTP_SITE_NAME
+      description: "Site Name"
+      label: "Site Name"
+      required: true
+      default: "www"
+      type: "string"
 services:
   glusterfs-server:
   scale: 3
