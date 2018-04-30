@@ -2,7 +2,7 @@
 
 Usefull catalogues for Rancher
 
-Leverage work found in:
+Glusterwebapp leverage components found in:
 
 https://github.com/bernardmaltais/demosite
 
