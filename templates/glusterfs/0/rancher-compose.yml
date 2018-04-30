@@ -12,7 +12,23 @@ catalog:
       default: "www"
       type: "string"
 services:
+  glusterfs-peer:
+    metadata:
+      volume_name: ranchervol
+    scale: 3
+    start_on_create: true
+  glusterfs-volume-create:
+    metadata:
+      volume_name: ranchervol
+    scale: 3
+    start_on_create: true
+  glusterfs-data:
+    metadata:
+      volume_name: ranchervol
+    scale: 3
+    start_on_create: true
   glusterfs-server:
-  scale: 3
-  metadata:
-    volume_name: "ranchervol"
+    metadata:
+      volume_name: ranchervol
+    scale: 3
+    start_on_create: true
