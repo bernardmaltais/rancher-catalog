@@ -1,8 +1,8 @@
 # rancher-catalog
 
-Usefull catalogues for Rancher
+Usefull catalogues for Rancher 1.6.
 
-Glusterwebapp leverage components found in:
+The glusterwebapp template leverage components found in:
 
 https://github.com/bernardmaltais/demosite
 
