@@ -7,7 +7,7 @@ services:
       ROOT_PASSWORD: testing
     stdin_open: true
     volumes:
-    - /gluster_volume:/gluster_volume
+    - /ranchervol:/ranchervol
     tty: true
     labels:
       io.rancher.container.pull_image: always
