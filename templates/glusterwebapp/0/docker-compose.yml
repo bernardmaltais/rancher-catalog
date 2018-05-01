@@ -11,6 +11,7 @@ services:
     tty: true
     labels:
       io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   wwwapp-lb:
     image: rancher/lb-service-haproxy:v0.9.1
     ports:
@@ -27,7 +28,7 @@ services:
     environment:
       SERVICE_NAME: gluster
       GIT_SRC: https://github.com/banago/simple-php-website.git
-      HTTP_SITE_NAME: testphp
+      HTTP_SITE_NAME: wwwapp
     stdin_open: true
     tty: true
     labels:
